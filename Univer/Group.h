@@ -1,4 +1,6 @@
 #pragma once
+#include"framework.h"
+
 class Group
 {
 	int id;
@@ -10,5 +12,8 @@ public:
 	~Group();
 
 	int getId();
+	int getFId();
+	const char* getName();
+	TCHAR* LgetName();
 };
 
