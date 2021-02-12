@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DBmanager.h" />
     <ClInclude Include="Faculty.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Group.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Univer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DBmanager.cpp" />
     <ClCompile Include="Faculty.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="sqlite3.c" />

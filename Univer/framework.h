@@ -13,3 +13,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+
+#include "Faculty.h"
+#include "Group.h"
+#include <vector>
