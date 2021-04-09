@@ -3,19 +3,15 @@
 
 #include "framework.h"
 #include "Univer.h"
+#include "DBmanager.h"
 
-#include "Faculty.h"
-#include "Group.h"
 
-#include <vector>
-
-#include <sqlite3.h>
+//#include <sqlite3.h>
 
 #define MAX_LOADSTRING 100
 #define IDC_BUTTON0 5000
 
 
-sqlite3* db;
 
 HWND hButton0;
 HWND hStatic0;
@@ -206,66 +202,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-//
-int callback1(void* err, int argc, char** argv, char** colName)
-{
-    int id = 0;
-    for (size_t i = 0; i < argc; i++)
-    {
-        if (i % 2 == 0)
-            id = atoi(argv[i]);
-        else 
-        {
-            Faculty faculty(id, argv[i]);
-            faculties.push_back(faculty);
-
-            size_t size1 = strlen(argv[i]) + 1;
-            TCHAR* buff = new TCHAR[size1];
-            size_t size2;
-
-            mbstowcs_s(&size2, buff, size1, argv[i], _TRUNCATE);
-            ::SendMessage(hCombo1, CB_ADDSTRING, 0, LPARAM(buff));
-            delete[] buff;
-        }
-    }
-    ::SendMessage(hCombo1, CB_SETCURSEL, 0, 0);
-
-    return 0;
-}
-
-int callback2(void* err, int argc, char** argv, char** colName)
-{
-    int id = 0;
-    int fid = 0;
-
-    for (size_t i = 0; i < argc; i++)
-    {
-        if (i % 3 == 0)
-        {
-            id = atoi(argv[i]);
-        }
-        else if (i % 3 == 1)
-        {
-            fid = atoi(argv[i]);
-        }
-        else {
-            Group group(id, fid, argv[i]);
-            groups.push_back(group);
-
-            size_t size1 = strlen(argv[i]) + 1;
-            TCHAR* buff = new TCHAR[size1];
-            size_t size2;
-
-            mbstowcs_s(&size2, buff, size1, argv[i], _TRUNCATE);
-            ::SendMessage(hList1, LB_ADDSTRING, 0, LPARAM(buff));
-            delete[] buff;
-        }
-    }
-
-    return 0;
-}
-
-//
 INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR buff[100];
@@ -296,10 +232,14 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             SendMessage(hCombo1, CB_ADDSTRING, 0, LPARAM(L"Пункт списка - 3"));
 
             SendMessage(hCombo1, CB_SETCURSEL, 2, 0);*/
+            faculties = DBmanager::Get()->get_faculties();
+            for(Faculty f : faculties)
+                SendMessage(hCombo1, CB_ADDSTRING, 0, LPARAM(f.LgetName()));
+
+            //sqlite3_open("univer.db", &db);
+            //sqlite3_exec(db, "select * from faculties", callback1, NULL, NULL);
+            //(db);
             
-            sqlite3_open("univer.db", &db);
-            sqlite3_exec(db, "select * from faculties", callback1, NULL, NULL);
-            sqlite3_close(db);
 
         }
         return (INT_PTR)TRUE;
@@ -311,22 +251,30 @@ INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 MessageBox(hDlg, L"Создание базы данных SQLite", L"Сообщение", MB_OK);
                 ::sqlite3_open("univer.db", &db);
                 ::sqlite3_close(db);
-                MessageBox(hDlg, L"Базы данных успешно создана", L"Сообщение", MB_OK);
             */
+            MessageBox(hDlg, L"Базы данных успешно создана", L"Сообщение", MB_OK);
         }
-        else if (LOWORD(wParam) == IDC_COMBO1 || LOWORD(wParam) == CBN_SELCHANGE)
+        else if (LOWORD(wParam) == IDC_COMBO1 && HIWORD(wParam) == CBN_SELCHANGE)
         {
-            char sql[100];
-            int selIndex = ::SendMessage(hCombo1, CB_GETCURSEL, 0, 0);
+            int selIndex = SendMessage(hCombo1, CB_GETCURSEL, 0, 0);
             int fid = faculties[selIndex].getId();
 
-            sprintf_s(sql, 100, "select * from groups where faculty_id=%i", fid);
-            ::SendMessage(hList1, LB_RESETCONTENT, 0, 0);
             groups.clear();
+            SendMessage(hList1, LB_RESETCONTENT, 0, 0);
+            groups = DBmanager::Get()->get_groups(fid);
+            for (Group g : groups)
+                SendMessage(hList1, LB_ADDSTRING, 0, LPARAM(g.LgetName()));
+        }
+        else if (LOWORD(wParam) == IDC_LIST1 && HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            //int selIndex = SendMessage(hList1, LB_GETCURSEL, 0, 0);
+            //int gid = groups[selIndex].getId();
 
-            sqlite3_open("univer.db", &db);
-            sqlite3_exec(db, sql, callback2, NULL, NULL);
-            sqlite3_close(db);
+            //groups.clear();
+            //SendMessage(hList1, LB_RESETCONTENT, 0, 0);
+            //groups = DBmanager::Get()->get_groups(gid);0
+            //for (Group g : groups)
+                //SendMessage(hList1, LB_ADDSTRING, 0, LPARAM(g.LgetName()));
         }
 
         /*if (LOWORD(wParam) == IDC_COMBO1 || LOWORD(wParam) == CBN_SELCHANGE)
