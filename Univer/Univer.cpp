@@ -202,66 +202,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-//
-int callback1(void* err, int argc, char** argv, char** colName)
-{
-    int id = 0;
-    for (size_t i = 0; i < argc; i++)
-    {
-        if (i % 2 == 0)
-            id = atoi(argv[i]);
-        else 
-        {
-            Faculty faculty(id, argv[i]);
-            faculties.push_back(faculty);
-
-            size_t size1 = strlen(argv[i]) + 1;
-            TCHAR* buff = new TCHAR[size1];
-            size_t size2;
-
-            mbstowcs_s(&size2, buff, size1, argv[i], _TRUNCATE);
-            ::SendMessage(hCombo1, CB_ADDSTRING, 0, LPARAM(buff));
-            delete[] buff;
-        }
-    }
-    ::SendMessage(hCombo1, CB_SETCURSEL, 0, 0);
-
-    return 0;
-}
-
-int callback2(void* err, int argc, char** argv, char** colName)
-{
-    int id = 0;
-    int fid = 0;
-
-    for (size_t i = 0; i < argc; i++)
-    {
-        if (i % 3 == 0)
-        {
-            id = atoi(argv[i]);
-        }
-        else if (i % 3 == 1)
-        {
-            fid = atoi(argv[i]);
-        }
-        else {
-            Group group(id, fid, argv[i]);
-            groups.push_back(group);
-
-            size_t size1 = strlen(argv[i]) + 1;
-            TCHAR* buff = new TCHAR[size1];
-            size_t size2;
-
-            mbstowcs_s(&size2, buff, size1, argv[i], _TRUNCATE);
-            ::SendMessage(hList1, LB_ADDSTRING, 0, LPARAM(buff));
-            delete[] buff;
-        }
-    }
-
-    return 0;
-}
-
-//
 INT_PTR CALLBACK MainDlg(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     TCHAR buff[100];
